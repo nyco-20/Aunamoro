@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Au Namoro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kadwa:wght@400;700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Rubik&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
+    <link rel="shortcut icon" type="imagex/png" href="img/barAN.svg">
+</head>
+<body>
+    <div id="titulo">
+        <h1>Au Namoro</h1>
+        <img src="img/Frame 4.svg" alt="">
+    </div>
+    <div class="container" id="perfil">
+
+        <div id="descricao">
+
+            <div id="info">
+                <img src="" alt="Carregando..." id="imgdog" class="dados">
+                <h1 id="nome" class="dados">Carregando...</h1>
+                <h2 class="dados" id="raca">...</h2>
+                <h2 class="dados" id="idade">...</h2>
+                <div id="boxmatch">
+                    <img id="deumatch" width="100" height="100" src="https://img.icons8.com/color/100/dog-paw-print.png" alt="dog-paw-print"/>
+                </div>
+            </div>
+            <div id="botoes">
+                <div class="botao" id="match" onclick="match()"><img width="34" height="34" src="https://img.icons8.com/glyph-neue/34/FFFFFF/checkmark.png" alt="checkmark"/></div>
+                <div class="botao" id="descarte" onclick="nao(1)"><img width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/FFFFFF/delete-sign.png" alt="delete-sign"/></div>
+            </div>
+        </div>
+        
+        <audio id="latido">
+            <source src="audio/latido.mp3" type="audio/mpeg">
+        </audio>
+
+        <audio id="uivo">
+            <source src="audio/uivo.mp3" type="audio/mpeg">
+        </audio>
+
+        <div id="pop-up" class="container">
+            <h1>Se você procura um romance <br> <b>Au Namoro</b> <br> É o melhor lugar</h1>
+            <h1>Você é:</h1>
+            <div id="selecao">
+                <div class="botao" id="cadela" onclick="fechaPopup(2)"><h2>Cadela</h2></div>
+                <h1>OU</h1>
+                <div class="botao" id="cao" onclick="fechaPopup(1)"><h2>Cão</h2></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="padding: 1rem;" id="proibido">
+        <h2>Proibido para menores de 18 meses.</h2>
+    </div>
+
+    <div id="shadow"></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHjlr4_EspR3oUzenn9SAquIYRtBfgwCo",
+            authDomain: "aunamoro.firebaseapp.com",
+            projectId: "aunamoro",
+            storageBucket: "aunamoro.firebasestorage.app",
+            messagingSenderId: "861687212391",
+            appId: "1:861687212391:web:b12b458d5aad876f09a7c2",
+            measurementId: "G-KB87SSSE5Z"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        const database = firebase.database();
+
+        let contagem = Math.floor(Math.random() * 100)
+        
+        function maleDog(){
+            const dbRef = database.ref('cachorros')
+
+            dbRef.once('value', (snapshot) => {
+                const data = snapshot.val();
+                const count = Object.keys(data);
+                let count2 = count.length;
+
+                var rand = (contagem)%count2;
+
+                var chosenDog = count[rand];
+
+                montaPerfil(chosenDog, "cachorros");
+            }); 
+        }
+
+        function femaleDog(){
+            const dbRef = database.ref('cadelas')
+
+            dbRef.once('value', (snapshot) => {
+                const data = snapshot.val();
+                const count = Object.keys(data);
+                let count2 = count.length;
+
+                var rand = (contagem)%count2;
+
+                var chosenDog = count[rand];
+
+                montaPerfil(chosenDog, "cadelas");
+            });
+        }
+
+        function montaPerfil(auau, x){
+            const dbRef = database.ref(`${x}/${auau}`)
+            
+
+            dbRef.once('value', (snapshot) => {
+                const data = snapshot.val();
+                var newDog = data;
+                
+                document.getElementById("nome").innerHTML = newDog.nome;
+                document.getElementById("raca").innerHTML = newDog.raca;
+                document.getElementById("idade").innerHTML = newDog.idade;
+                document.getElementById("imgdog").src = `img/${x}/${newDog.nome}.jpg`;
+            });
+
+            document.getElementById('descarte').style.pointerEvents = 'auto'
+            document.getElementById('match').style.pointerEvents = 'auto'
+        }
+
+        //Parte estrutural
+
+        const latido = document.getElementById("latido")
+        const uivo = document.getElementById("uivo")
+
+        let btcadela = document.getElementById("cadela");
+        let btcao = document.getElementById("cao");
+        let popup = document.getElementById("pop-up");
+        let shadow = document.getElementById("shadow");
+        let desc = document.getElementById("perfil");
+        let genero = "";
+
+        function fechaPopup(sexo){
+            popup.style.display = 'none';
+            shadow.style.display = 'none';
+            genero = sexo;
+            
+            if(sexo == 2){
+                desc.style.background = "#00BCCA";
+                document.body.style.background = "#06B9A4";
+                document.getElementById("raca").style.color = "black";
+                document.getElementById("nome").style.color = "black";
+                document.getElementById("idade").style.color = "black";
+                maleDog();
+            } else{
+                femaleDog();
+            }
+        }
+
+        function match(){
+            document.getElementById('descarte').style.pointerEvents = 'none'
+            document.getElementById('match').style.pointerEvents = 'none'
+            document.getElementById("deumatch").style.animation = "damatch 2s ease-in-out";
+            document.querySelectorAll("botao").disabled = true
+
+            uivo.play();
+
+            setTimeout(() => {
+                document.getElementById("deumatch").style.animation = ""
+            }, 2002)
+
+            setTimeout(() => {
+                nao();
+            }, 2002)
+        }
+
+        function nao(audio){
+            document.getElementById('descarte').style.pointerEvents = 'none'
+            document.getElementById('match').style.pointerEvents = 'none'
+            desc.classList.add('troca');
+            contagem += 1;
+
+            if(audio == 1){
+                latido.play();
+            } 
+            
+            setTimeout(() => {
+                desc.classList.remove('troca')
+                desc.classList.add('novo')
+            
+                setTimeout(() => {
+                    desc.classList.remove('novo')
+                }, 750)
+            }, 1022)
+            
+            setTimeout(() => {
+                if (document.getElementById("nome").style.color == "black"){
+                    maleDog();
+                } else{
+                    femaleDog();
+                }
+            }, 200)
+        }
+    </script>
+</body>
+</html>
